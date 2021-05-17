@@ -17,7 +17,7 @@
 .buttons {
   background-color: #282c34;
   position: absolute;
-  bottom: 0;
+  top: 0;
   width: 100%;
   z-index: 10;
   display: flex;
