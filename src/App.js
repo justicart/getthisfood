@@ -1,23 +1,60 @@
-import logo from './logo.svg';
+import {useEffect, useState} from 'react';
 import './App.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faLocationArrow, faPlus, faSearch } from '@fortawesome/free-solid-svg-icons'
+
+import Map from './components/map.react';
+
+import useRect from './hooks/useRect';
 
 function App() {
+  const [location, setLocation] = useState();
+  const [loadingLoc, setLoadingLoc] = useState(false);
+  const [box, heightRef] = useRect();
+  useEffect(() => {
+    getLocation();
+  }, []);
+
+  const getLocation = () => {
+    console.log('GET')
+    setLoadingLoc(true);
+    navigator.geolocation.getCurrentPosition(setLocationFromPosition);
+  }
+
+  const setLocationFromPosition = (position) => {
+    console.log('POSITION', position);
+    setLocation(position);
+    setLoadingLoc(false);
+  }
+
+  const height = box.height || 300;
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="App" ref={heightRef}>
+      {loadingLoc && <div>Loading</div>}
+      {location != null && <div className="map">
+          <Map
+          location={location}
+          height={height}
+        />
+      </div>}
+      <div className="buttons">
+        <div className="button">
+          <div className="icon">
+            <FontAwesomeIcon icon={faPlus} />
+          </div>
+        </div>
+        <div className="button">
+          <div className="icon">
+            <FontAwesomeIcon icon={faSearch} />
+          </div>
+        </div>
+        <div className="button">
+          <div className="icon">
+            <FontAwesomeIcon icon={faLocationArrow} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
