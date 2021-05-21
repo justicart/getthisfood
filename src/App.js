@@ -33,7 +33,7 @@ function App() {
     <div className="App" ref={heightRef}>
       {loadingLoc && <div>Loading</div>}
       {location != null && <div className="map">
-          <Map
+        <Map
           location={location}
           height={height}
         />

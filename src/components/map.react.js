@@ -17,6 +17,11 @@ export default function Map({location, height}) {
   const pad = 45;
   const topPad = height + pad;
 
+  const center = [
+    location.coords.longitude,
+    location.coords.latitude,
+  ];
+
   return (
     <Mapbox
       // eslint-disable-next-line
@@ -25,22 +30,19 @@ export default function Map({location, height}) {
         height: '100%',
         width: '100%'
       }}
-      center={[
-        location.coords.longitude,
-        location.coords.latitude,
-      ]}
+      center={center}
       // fitBounds={[
       //   location.coords.latitude,
       //   location.coords.longitude
       // ]}
-      fitBoundsOptions={{
-        maxZoom: zoom,
-        padding: {top: topPad, bottom: pad, left: pad, right: pad}
-        }}
+      // fitBoundsOptions={{
+      //   maxZoom: zoom,
+      //   padding: {top: topPad, bottom: pad, left: pad, right: pad}
+      //   }}
     >
-      {/* <Layer type="symbol" id="stop" layout={{ 'icon-image': 'dot-11' }}>
-        <Feature coordinates={reversedCenter} />
-      </Layer> */}
+      <Layer type="symbol" id="stop" layout={{ 'icon-image': 'bus' }}>
+        <Feature coordinates={center} draggable={true} />
+      </Layer>
       {/* <Layer
         type="symbol"
         id="bus"
