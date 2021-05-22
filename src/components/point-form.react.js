@@ -2,16 +2,15 @@ import {useContext, useEffect, useState} from 'react';
 import {AppContext} from '../contexts/AppContext';
 
 export default function PointForm() {
-  const {savePoint, point, points, selectedPoint} = useContext(AppContext);
+  const {savePoint, point, points, selectedPoint, editingPoint, setEditingPoint} = useContext(AppContext);
   const [draft, setDraft] = useState({});
-  const [editingPoint, setEditingPoint] = useState(false);
 
   useEffect(() => {
     if (selectedPoint != null) {
       console.log(selectedPoint, points[selectedPoint])
       setDraft(points[selectedPoint]);
     }
-  }, []);
+  }, [selectedPoint]);
 
   const updateField = (e) => {
     e.preventDefault();

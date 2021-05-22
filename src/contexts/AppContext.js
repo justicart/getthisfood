@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
+import useLocalStorage from '../hooks/useLocalStorage';
 
-const ZOOM_DEFAULT = [14];
+const ZOOM_DEFAULT = [16];
 
 export const AppContext = React.createContext({
   location: null, setLocation: () => {},
@@ -11,6 +12,7 @@ export const AppContext = React.createContext({
   points: [],
   savePoint: () => {},
   selectedPoint: null, setSelectedPoint: () => {},
+  editingPoint: null, setEditingPoint: () => {},
 })
 
 export const AppProvider = (props) => {
@@ -19,22 +21,28 @@ export const AppProvider = (props) => {
   const [mapMoved, setMapMoved] = useState();
   const [mapZoom, setMapZoom] = useState(ZOOM_DEFAULT);
   const [point, setPoint] = useState();
-  const [points, setPoints] = useState([]);
+  const [points, setPoints] = useLocalStorage('points', []);
   const [selectedPoint, setSelectedPoint] = useState();
+  const [editingPoint, setEditingPoint] = useState(false);
   const savePoint = (data, id) => {
     if (id != null) {
-      points[id] = data;
-      return setSelectedPoint();
+      const newPoints = [...points];
+      newPoints[id] = data;
+      setPoints(newPoints);
+    } else {
+      const newPoint = {
+        coords: point.coords,
+        ...data
+      }
+      setPoints([
+        ...points,
+        newPoint
+      ]);
     }
-    const newPoint = {
-      coords: point.coords,
-      ...data
-    }
-    setPoints([
-      ...points,
-      newPoint
-    ]);
+    
     setPoint();
+    setSelectedPoint();
+    setEditingPoint(false);
   }
   
   return (
@@ -47,6 +55,7 @@ export const AppProvider = (props) => {
       points,
       savePoint,
       selectedPoint, setSelectedPoint,
+      editingPoint, setEditingPoint
     }}>
       {props.children}
     </AppContext.Provider>

@@ -9,8 +9,9 @@ const Mapbox = ReactMap({
 
 export default function Map({height}) {
   const [movingPoing, setMovingPoint] = useState(false);
-  const {location, mapCenter, setMapCenter, mapZoom, setMapZoom, point, points, selectedPoint, setSelectedPoint} = useContext(AppContext);
+  const {location, mapCenter, setMapCenter, mapZoom, setMapZoom, point, points, selectedPoint, setSelectedPoint, editingPoint} = useContext(AppContext);
   if (location == null) return null;
+  console.log('points', points)
 
   const handleMapMoved = (e) => {
     if (!movingPoing) {
@@ -34,10 +35,11 @@ export default function Map({height}) {
   }
 
   const openPointDetails = (data) => {
-    console.log(data.feature.properties.id, point, selectedPoint);
-    if (!point && selectedPoint == null) {
-      setSelectedPoint(data.feature.properties.id)
+    if (point || editingPoint) {
+      return;
     }
+    console.log(data.feature.properties.id, point, selectedPoint);
+    setSelectedPoint(data.feature.properties.id)
   }
 
   // const {center, locator, height} = location;
