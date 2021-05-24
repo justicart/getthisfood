@@ -31,7 +31,7 @@ export const AppProvider = (props) => {
       setPoints(newPoints);
     } else {
       const newPoint = {
-        coords: point.coords,
+        coords: mapCenter,
         ...data
       }
       setPoints([

@@ -7,8 +7,10 @@ export default function PointForm() {
 
   useEffect(() => {
     if (selectedPoint != null) {
-      console.log(selectedPoint, points[selectedPoint])
+      // console.log(selectedPoint, points[selectedPoint])
       setDraft(points[selectedPoint]);
+    } else {
+      setDraft({});
     }
   }, [selectedPoint]);
 
@@ -18,6 +20,11 @@ export default function PointForm() {
       ...draft,
       [e.target.name]: e.target.value,
     })
+  }
+
+  const saveHandler = () => {
+    savePoint(draft, selectedPoint);
+    setDraft({});
   }
 
   const title = draft.title || '';
@@ -57,7 +64,7 @@ export default function PointForm() {
       </div>
       <div className="buttons">
         {selectedPoint != null && <button className="cancel" onClick={() => setEditingPoint(false)}>Cancel</button>}
-        <button className="submit" onClick={() => savePoint(draft, selectedPoint)}>Save</button>
+        <button className="submit" onClick={saveHandler}>Save</button>
       </div>
     </div>
   )

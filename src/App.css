@@ -13,16 +13,110 @@
   height: 100vh;
   width: 100vw;
 }
+.map-container {
+  height: 100%;
+}
+
+.target {
+  position: absolute;
+  height: 100vh;
+  width: 100vw;
+  z-index: 9;
+  pointer-events: none;
+}
+
+.target .vertical {
+  position: absolute;
+  width: 2px;
+  height: 100%;
+  left: calc(50% - 2px);  /* should be calc(50% - 1px) but it is 1 off for some reason */
+}
+.target .vertical::before,
+.target .vertical::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 50%;
+  background-color: white;
+  opacity: 0.1;
+  transition: 250ms all ease;
+}
+.target .vertical::before {
+  bottom: calc(50% + 10px);
+}
+.target .vertical::after {
+  top: calc(50% + 10px);
+}
+
+.target .horizontal {
+  position: absolute;
+  height: 2px;
+  width: 100%;
+  top: calc(50% - 1px);
+}
+.target .horizontal::before,
+.target .horizontal::after {
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 50%;
+  background-color: white;
+  opacity: 0.1;
+  transition: 250ms all ease;
+}
+.target .horizontal::before {
+  left: calc(50% + 10px);
+}
+.target .horizontal::after {
+  right: calc(50% + 10px);
+}
+
+.target .circle {
+  position: absolute;
+  top: calc(50% - 10px);
+  left: calc(50% - 10px);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #00a2ff;
+  background-color: transparent;
+  transition: 250ms all ease;
+}
+
+.target.active .circle {
+  background-color: #00a2ff;
+}
+.target.active .vertical::before,
+.target.active .vertical::after,
+.target.active .horizontal::before,
+.target.active .horizontal::after {
+  background-color: #00a2ff;
+  opacity: 0.5;
+}
+
+.target.hide .circle {
+  border-color: transparent;
+  background-color: transparent;
+}
+.target.hide .vertical::before,
+.target.hide .vertical::after,
+.target.hide .horizontal::before,
+.target.hide .horizontal::after {
+  opacity: 0;
+}
+
 
 .main {
-  background-color: #282c34;
   position: absolute;
   top: 0;
   width: 100%;
   z-index: 10;
+  pointer-events: none;
 }
 .buttons {
+  background-color: #282c34;
   display: flex;
+  pointer-events: all;
 }
 
 .button {
@@ -43,7 +137,12 @@
 
 .button .icon {
   font-size: 2em;
+  transition: 250ms all ease;
 }
+.button .icon.rotate {
+  transform: rotate(45deg);
+}
+
 .locating {
   opacity: 0.2;
   animation: wiggle 2.5s infinite ease-in-out;
@@ -55,6 +154,21 @@
   60%  {transform:rotate(20deg);}
   80%  {transform:rotate(-15deg);}
   100% {transform:rotate(0deg);}
+}
+
+.sheetBox {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+.sheetBox .sheet {
+  background-color: #282c34;
+  border-radius: 0 0 16px 16px;
+  transition: 250ms all ease;
+  transform: translateY(-100%);
+}
+.sheetBox .sheet.open {
+  transform: translateY(0);
 }
 
 /* form */
@@ -104,6 +218,7 @@ button.submit:hover {
 }
 
 .pointForm {
+  pointer-events: all;
   padding: 8px;
   text-align: left;
 }

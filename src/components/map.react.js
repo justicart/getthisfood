@@ -8,17 +8,14 @@ const Mapbox = ReactMap({
 });
 
 export default function Map({height}) {
-  const [movingPoing, setMovingPoint] = useState(false);
   const {location, mapCenter, setMapCenter, mapZoom, setMapZoom, point, points, selectedPoint, setSelectedPoint, editingPoint} = useContext(AppContext);
   if (location == null) return null;
-  console.log('points', points)
+  // console.log('points', points)
 
   const handleMapMoved = (e) => {
-    if (!movingPoing) {
-      const newCenter = e.transform && e.transform._center;
-      if (newCenter) {
-        return setMapCenter([newCenter.lng, newCenter.lat]);
-      }
+    const newCenter = e.transform && e.transform._center;
+    if (newCenter) {
+      return setMapCenter([newCenter.lng, newCenter.lat]);
     }
   }
   const handleMapZoomed = (e) => {
@@ -27,24 +24,18 @@ export default function Map({height}) {
       return setMapZoom([newZoom]);
     }
   }
-  const onDragPoint = () => {
-    setMovingPoint(true);
-  }
-  const onDragPointEnd = (e) => {
-    setMovingPoint(false);
-  }
 
   const openPointDetails = (data) => {
     if (point || editingPoint) {
       return;
     }
-    console.log(data.feature.properties.id, point, selectedPoint);
+    // console.log(data.feature.properties.id, point, selectedPoint);
     setSelectedPoint(data.feature.properties.id)
   }
 
-  // const {center, locator, height} = location;
-  // const reversedCenter = [center[1], center[0]];
-  // const reversedMarkerCoord = locator ? [locator.Longitude, locator.Latitude] : null;
+  const closePointDetails = () => {
+    setSelectedPoint();
+  }
 
   // const fit = locator != null ? [reversedCenter, reversedMarkerCoord] : [reversedCenter, reversedCenter];
   const pad = 45;
@@ -62,7 +53,6 @@ export default function Map({height}) {
         width: '100%'
       }}
       center={center}
-      // center={[-73.945407, 40.7783245]}
       zoom={mapZoom}
       // fitBounds={[
       //   location.coords.latitude,
@@ -77,35 +67,20 @@ export default function Map({height}) {
     >
       <Layer
         type="circle"
-        id="point"
-        paint={{"circle-radius": 15, "circle-color": "#00a2ff"}}
-        layout={{visibility: point != null ? 'visible' : 'none'}}
-      >
-        {/* // TODO dragging doesn't work */}
-        <Feature coordinates={point ? point.coords : center} draggable={true} onDrag={onDragPoint} onDragEnd={onDragPointEnd} />
-      </Layer>
-      <Layer
-        type="circle"
         id="points"
-        paint={{"circle-radius": 5, "circle-color": "#00a2ff"}}
+        paint={{"circle-radius": 10, "circle-opacity": 0.5, "circle-color": "#00a2ff"}}
       >
         {points.map((savedPoint, index) => {
           return <Feature key={index} coordinates={savedPoint.coords} onClick={openPointDetails} id={index} />
         })}
       </Layer>
-      {/* <Layer
-        type="symbol"
-        id="bus"
-        layout={{ 
-          'icon-image': 'bus', 
-          visibility: locator != null ? 'visible' : 'none' 
-        }}
-        // paint={{
-        //   'icon-color': '#FF0000'
-        // }}
+      <Layer
+        type="circle"
+        id="selectedPoint"
+        paint={{"circle-radius": 15, "circle-opacity": 0, "circle-stroke-color": "#00a2ff", "circle-stroke-width": 2}}
       >
-        <Feature coordinates={reversedMarkerCoord} />
-      </Layer> */}
+        {selectedPoint != null && <Feature coordinates={points[selectedPoint].coords} onClick={closePointDetails} id="selected" />}
+      </Layer>
     </Mapbox>
   )
 }
