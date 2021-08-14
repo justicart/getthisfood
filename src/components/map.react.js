@@ -1,5 +1,6 @@
 import ReactMap, { Layer, Feature } from 'react-mapbox-gl';
-import {useContext, useState} from 'react';
+import {useEasybase} from 'easybase-react';
+import {useContext, useEffect, useState} from 'react';
 import {AppContext} from '../contexts/AppContext';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -8,10 +9,19 @@ const Mapbox = ReactMap({
 });
 
 export default function Map({height}) {
-  const {location, mapCenter, setMapCenter, mapZoom, setMapZoom, point, points, selectedPoint, setSelectedPoint, editingPoint} = useContext(AppContext);
-  if (location == null) return null;
-  // console.log('points', points)
+  const {location, mapCenter, setMapCenter, mapZoom, setMapZoom, point, selectedPoint, setSelectedPoint, editingPoint} = useContext(AppContext);
+  const {Frame, sync, configureFrame} = useEasybase();
+  useEffect(() => {
+    configureFrame({ tableName: "NOTES APP", limit: 10 });
+    sync();
+  }, []);
+  Frame().map(savedPoint => {
+    console.log('point', savedPoint)
+    const coords = [savedPoint.coords[0], savedPoint.coords[1]];
+    console.log(coords)
+  })
 
+  if (location == null) return null;
   const handleMapMoved = (e) => {
     const newCenter = e.transform && e.transform._center;
     if (newCenter) {
@@ -70,8 +80,13 @@ export default function Map({height}) {
         id="points"
         paint={{"circle-radius": 10, "circle-opacity": 0.5, "circle-color": "#00a2ff"}}
       >
-        {points.map((savedPoint, index) => {
-          return <Feature key={index} coordinates={savedPoint.coords} onClick={openPointDetails} id={index} />
+        {Frame().map((savedPoint, index) => {
+          const coords = [savedPoint.coords[1], savedPoint.coords[0]];
+          if (Array.isArray(coords)) {
+            return <Feature key={index} coordinates={coords} onClick={openPointDetails} id={index} />
+          } else {
+            return <></>
+          }
         })}
       </Layer>
       <Layer
@@ -79,7 +94,7 @@ export default function Map({height}) {
         id="selectedPoint"
         paint={{"circle-radius": 15, "circle-opacity": 0, "circle-stroke-color": "#00a2ff", "circle-stroke-width": 2}}
       >
-        {selectedPoint != null && <Feature coordinates={points[selectedPoint].coords} onClick={closePointDetails} id="selected" />}
+        {/* {selectedPoint != null && <Feature coordinates={points[selectedPoint].coords} onClick={closePointDetails} id="selected" />} */}
       </Layer>
     </Mapbox>
   )

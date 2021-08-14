@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import useLocalStorage from '../hooks/useLocalStorage';
+import {useEasybase} from 'easybase-react';
 
 const ZOOM_DEFAULT = [16];
 
@@ -16,28 +16,35 @@ export const AppContext = React.createContext({
 })
 
 export const AppProvider = (props) => {
+  const {Frame, sync} = useEasybase();
   const [location, setLocation] = useState();
   const [mapCenter, setMapCenter] = useState();
   const [mapMoved, setMapMoved] = useState();
   const [mapZoom, setMapZoom] = useState(ZOOM_DEFAULT);
   const [point, setPoint] = useState();
-  const [points, setPoints] = useLocalStorage('points', []);
   const [selectedPoint, setSelectedPoint] = useState();
   const [editingPoint, setEditingPoint] = useState(false);
   const savePoint = (data, id) => {
     if (id != null) {
-      const newPoints = [...points];
-      newPoints[id] = data;
-      setPoints(newPoints);
+      console.log('editing!!')
+      // const newPoints = [...points];
+      // newPoints[id] = data;
+      // setPoints(newPoints);
     } else {
-      const newPoint = {
+      Frame().push({
+        ...data,
         coords: mapCenter,
-        ...data
-      }
-      setPoints([
-        ...points,
-        newPoint
-      ]);
+      });
+      
+      sync();
+      // const newPoint = {
+      //   coords: mapCenter,
+      //   ...data
+      // }
+      // setPoints([
+      //   ...points,
+      //   newPoint
+      // ]);
     }
     
     setPoint();
@@ -52,7 +59,7 @@ export const AppProvider = (props) => {
       mapMoved, setMapMoved,
       mapZoom, setMapZoom,
       point, setPoint,
-      points,
+      points: Frame(),
       savePoint,
       selectedPoint, setSelectedPoint,
       editingPoint, setEditingPoint

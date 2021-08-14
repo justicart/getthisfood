@@ -127,12 +127,21 @@
   align-items: center;
   background: #30343e;
   padding: 8px 12px;
+  cursor: pointer;
 }
 .button:hover {
   background-color: #2a2e36;
 }
 .button.disabled {
   opacity: 0.2;
+}
+
+.button.beta {
+  flex-grow: 0;
+  font-weight: bold;
+}
+.button.beta.selected {
+  background: #00a2ff;
 }
 
 .button .icon {
