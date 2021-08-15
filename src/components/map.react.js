@@ -15,11 +15,6 @@ export default function Map({height}) {
     configureFrame({ tableName: "NOTES APP", limit: 10 });
     sync();
   }, []);
-  Frame().map(savedPoint => {
-    console.log('point', savedPoint)
-    const coords = [savedPoint.coords[0], savedPoint.coords[1]];
-    console.log(coords)
-  })
 
   if (location == null) return null;
   const handleMapMoved = (e) => {
@@ -39,7 +34,6 @@ export default function Map({height}) {
     if (point || editingPoint) {
       return;
     }
-    // console.log(data.feature.properties.id, point, selectedPoint);
     setSelectedPoint(data.feature.properties.id)
   }
 
@@ -47,7 +41,6 @@ export default function Map({height}) {
     setSelectedPoint();
   }
 
-  // const fit = locator != null ? [reversedCenter, reversedMarkerCoord] : [reversedCenter, reversedCenter];
   const pad = 45;
   const topPad = height + pad;
 
@@ -81,8 +74,8 @@ export default function Map({height}) {
         paint={{"circle-radius": 10, "circle-opacity": 0.5, "circle-color": "#00a2ff"}}
       >
         {Frame().map((savedPoint, index) => {
-          const coords = [savedPoint.coords[1], savedPoint.coords[0]];
-          if (Array.isArray(coords)) {
+          if (savedPoint.lng != null && savedPoint.lat !== null) {
+            const coords = [savedPoint.lng, savedPoint.lat];
             return <Feature key={index} coordinates={coords} onClick={openPointDetails} id={index} />
           } else {
             return <></>

@@ -1,6 +1,6 @@
 import {useContext, useEffect, useState} from 'react';
 import {AppContext, AppProvider} from './contexts/AppContext';
-import {EasybaseProvider} from 'easybase-react';
+import {Auth, EasybaseProvider} from 'easybase-react';
 import ebconfig from './ebconfig';
 
 import './App.css';
@@ -114,7 +114,9 @@ function App() {
   return (
     <AppProvider>
       <EasybaseProvider ebconfig={ebconfig}>
-        <Content />
+        <Auth>
+          <Content />
+        </Auth>
       </EasybaseProvider>
     </AppProvider>
   )

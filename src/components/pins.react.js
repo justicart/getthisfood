@@ -17,7 +17,7 @@ function Pins(props) {
 
   return Frame().map((point, index) => {
     return (
-      <Marker key={`marker-${index}`} longitude={point.coords[1]} latitude={point.coords[0]}>
+      <Marker key={`marker-${index}`} longitude={point.lng} latitude={point.lat}>
         <svg
           height={SIZE}
           viewBox={`0 0 ${SIZE} ${SIZE}`}

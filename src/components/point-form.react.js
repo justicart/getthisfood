@@ -1,13 +1,14 @@
 import {useContext, useEffect, useState} from 'react';
+import {useEasybase} from 'easybase-react';
 import {AppContext} from '../contexts/AppContext';
 
 export default function PointForm() {
-  const {savePoint, point, points, selectedPoint, editingPoint, setEditingPoint} = useContext(AppContext);
+  const {Frame, sync} = useEasybase();
+  const {mapCenter, points, selectedPoint, editingPoint, setEditingPoint, setPoint, setSelectedPoint} = useContext(AppContext);
   const [draft, setDraft] = useState({});
 
   useEffect(() => {
     if (selectedPoint != null) {
-      // console.log(selectedPoint, points[selectedPoint])
       setDraft(points[selectedPoint]);
     } else {
       setDraft({});
@@ -22,21 +23,36 @@ export default function PointForm() {
     })
   }
 
-  const saveHandler = () => {
-    savePoint(draft, selectedPoint);
+  const savePoint = () => {
+    console.log(draft, mapCenter)
+    if (selectedPoint != null) {
+      console.log('editing!!')
+    } else {
+      Frame().push({
+        ...draft,
+        lat: mapCenter[1],
+        lng: mapCenter[0],
+      });
+      
+      sync();
+    }
+    
+    setPoint();
+    setSelectedPoint();
+    setEditingPoint(false);
     setDraft({});
   }
 
   const title = draft.title || '';
   const like = draft.like || '';
-  const hate = draft.hate || '';
+  const dislike = draft.dislike || '';
 
   if (selectedPoint != null && !editingPoint) {
     return (
       <div className="pointForm">
       <div>🏚 {title}</div>
       <div>👍 {like}</div>
-      <div>👎 {hate}</div>
+      <div>👎 {dislike}</div>
       <button className="edit" onClick={() => setEditingPoint(true)}>Edit</button>
     </div>
     )
@@ -57,14 +73,14 @@ export default function PointForm() {
         </div>
       </div>
       <div className="formRow">
-        <label htmlFor="hate">👎 </label>
+        <label htmlFor="dislike">👎 </label>
         <div className="formRowInput">
-          <input name="hate" type="text" value={hate} onChange={updateField} />
+          <input name="dislike" type="text" value={dislike} onChange={updateField} />
         </div>
       </div>
       <div className="buttons">
         {selectedPoint != null && <button className="cancel" onClick={() => setEditingPoint(false)}>Cancel</button>}
-        <button className="submit" onClick={saveHandler}>Save</button>
+        <button className="submit" onClick={savePoint}>Save</button>
       </div>
     </div>
   )
