@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
+import {useEasybase} from 'easybase-react';
 
 const ZOOM_DEFAULT = [16];
 
@@ -11,6 +12,8 @@ export const AppContext = React.createContext({
   points: [],
   selectedPoint: null, setSelectedPoint: () => {},
   editingPoint: null, setEditingPoint: () => {},
+  pointData: [],
+  mounted: () => {},
 })
 
 export const AppProvider = (props) => {
@@ -21,6 +24,18 @@ export const AppProvider = (props) => {
   const [point, setPoint] = useState();
   const [selectedPoint, setSelectedPoint] = useState();
   const [editingPoint, setEditingPoint] = useState(false);
+  const [easybaseData, setEasybaseData] = useState([]);
+  const { db } = useEasybase();
+
+  const mounted = async() => {
+    const ebData = await db("POINTS", true).return().limit(10).all();
+    console.log('ebData', ebData)
+    setEasybaseData(ebData);
+  }
+
+  useEffect(() => {
+    mounted();
+  }, [])
   
   return (
     <AppContext.Provider value={{
@@ -30,7 +45,9 @@ export const AppProvider = (props) => {
       mapZoom, setMapZoom,
       point, setPoint,
       selectedPoint, setSelectedPoint,
-      editingPoint, setEditingPoint
+      editingPoint, setEditingPoint,
+      pointData: easybaseData,
+      mounted,
     }}>
       {props.children}
     </AppContext.Provider>

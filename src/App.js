@@ -116,8 +116,8 @@ function Content() {
 
 function App() {
   return (
-    <AppProvider>
-      <EasybaseProvider ebconfig={ebconfig}>
+    <EasybaseProvider ebconfig={ebconfig}>
+      <AppProvider>
         <Auth
           signUpFields={{
             name: true,
@@ -125,8 +125,8 @@ function App() {
         >
           <Content />
         </Auth>
-      </EasybaseProvider>
-    </AppProvider>
+      </AppProvider>
+    </EasybaseProvider>
   )
 }
 

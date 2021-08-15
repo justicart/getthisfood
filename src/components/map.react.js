@@ -1,6 +1,5 @@
 import ReactMap, { Layer, Feature } from 'react-mapbox-gl';
-import {useEasybase} from 'easybase-react';
-import {useContext, useEffect, useState} from 'react';
+import {useContext} from 'react';
 import {AppContext} from '../contexts/AppContext';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -9,12 +8,7 @@ const Mapbox = ReactMap({
 });
 
 export default function Map({height}) {
-  const {location, mapCenter, setMapCenter, mapZoom, setMapZoom, point, selectedPoint, setSelectedPoint, editingPoint} = useContext(AppContext);
-  const {Frame, sync, configureFrame} = useEasybase();
-  useEffect(() => {
-    configureFrame({ tableName: "NOTES APP", limit: 10 });
-    sync();
-  }, []);
+  const {location, mapCenter, setMapCenter, mapZoom, setMapZoom, point, selectedPoint, setSelectedPoint, editingPoint, pointData} = useContext(AppContext);
 
   if (location == null) return null;
   const handleMapMoved = (e) => {
@@ -30,11 +24,11 @@ export default function Map({height}) {
     }
   }
 
-  const openPointDetails = (data) => {
+  const openPointDetails = (_key) => {
     if (point || editingPoint) {
       return;
     }
-    setSelectedPoint(data.feature.properties.id)
+    setSelectedPoint(_key)
   }
 
   const closePointDetails = () => {
@@ -73,10 +67,10 @@ export default function Map({height}) {
         id="points"
         paint={{"circle-radius": 10, "circle-opacity": 0.5, "circle-color": "#00a2ff"}}
       >
-        {Frame().map((savedPoint, index) => {
+        {pointData.map((savedPoint, index) => {
           if (savedPoint.lng != null && savedPoint.lat !== null) {
             const coords = [savedPoint.lng, savedPoint.lat];
-            return <Feature key={index} coordinates={coords} onClick={openPointDetails} id={index} />
+            return <Feature key={index} coordinates={coords} onClick={() => openPointDetails(savedPoint._key)} />
           } else {
             return <></>
           }
