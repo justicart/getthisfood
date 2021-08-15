@@ -2,6 +2,7 @@ import {useContext, useEffect, useState} from 'react';
 import {AppContext, AppProvider} from './contexts/AppContext';
 import {Auth, EasybaseProvider, useEasybase} from 'easybase-react';
 import ebconfig from './ebconfig';
+import useLocalStorage from './hooks/useLocalStorage';
 
 import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -17,7 +18,7 @@ function Content() {
   const {signOut} = useEasybase();
   const {location, setLocation, mapCenter, setMapCenter, point, setPoint, selectedPoint, setSelectedPoint, setEditingPoint} = useContext(AppContext);
   const [loadingLoc, setLoadingLoc] = useState(false);
-  const [isBeta, setIsBeta] = useState(true);
+  const [isBeta, setIsBeta] = useLocalStorage('beta', false);
   const [box, heightRef] = useRect();
   useEffect(() => {
     getLocation();
