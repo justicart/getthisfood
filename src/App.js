@@ -1,18 +1,24 @@
 import {useContext, useEffect, useState} from 'react';
 import {AppContext, AppProvider} from './contexts/AppContext';
+import {Auth, EasybaseProvider, useEasybase} from 'easybase-react';
+import ebconfig from './ebconfig';
+import useLocalStorage from './hooks/useLocalStorage';
 
 import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLocationArrow, faTimes, faPlus, faSearch, faBullseye } from '@fortawesome/free-solid-svg-icons'
 
 import Map from './components/map.react';
+import Map2 from './components/map2.react';
 import PointForm from './components/point-form.react';
 
 import useRect from './hooks/useRect';
 
 function Content() {
+  const {signOut} = useEasybase();
   const {location, setLocation, mapCenter, setMapCenter, point, setPoint, selectedPoint, setSelectedPoint, setEditingPoint} = useContext(AppContext);
   const [loadingLoc, setLoadingLoc] = useState(false);
+  const [isBeta, setIsBeta] = useLocalStorage('beta', false);
   const [box, heightRef] = useRect();
   useEffect(() => {
     getLocation();
@@ -57,9 +63,15 @@ function Content() {
     <div className="App" ref={heightRef}>
       {loadingLoc && <div>Loading</div>}
       {location != null && <div className="map">
-        <Map
-          height={height}
-        />
+        {isBeta === true ? (
+          <Map2
+            height={height}
+          />
+        ) : (
+          <Map
+            height={height}
+          />
+        )}
       </div>}
       <div className={`target ${(point && 'active')} ${selectedPoint != null && 'hide'}`}>
         <div className="vertical"></div>
@@ -86,6 +98,12 @@ function Content() {
               <FontAwesomeIcon icon={faLocationArrow} />
             </div>
           </div>
+          <div className="button beta" onClick={signOut}>
+            s
+          </div>
+          <div className={`button beta ${isBeta ? 'selected' : ''}`} onClick={() => setIsBeta(!isBeta)}>
+            v2
+          </div>
         </div>
         <div className="sheetBox">
           <div className={`sheet ${(point || selectedPoint != null) && 'open'}`}>
@@ -99,9 +117,17 @@ function Content() {
 
 function App() {
   return (
-    <AppProvider>
-      <Content />
-    </AppProvider>
+    <EasybaseProvider ebconfig={ebconfig}>
+      <AppProvider>
+        <Auth
+          signUpFields={{
+            name: true,
+          }}
+        >
+          <Content />
+        </Auth>
+      </AppProvider>
+    </EasybaseProvider>
   )
 }
 

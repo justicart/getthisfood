@@ -1,18 +1,30 @@
 import {useContext, useEffect, useState} from 'react';
+import {useEasybase} from 'easybase-react';
 import {AppContext} from '../contexts/AppContext';
 
 export default function PointForm() {
-  const {savePoint, point, points, selectedPoint, editingPoint, setEditingPoint} = useContext(AppContext);
+  const { db } = useEasybase();
+  const {mapCenter, points, selectedPoint, editingPoint, setEditingPoint, setPoint, setSelectedPoint, mounted} = useContext(AppContext);
   const [draft, setDraft] = useState({});
 
   useEffect(() => {
     if (selectedPoint != null) {
-      // console.log(selectedPoint, points[selectedPoint])
-      setDraft(points[selectedPoint]);
+      getPointData(selectedPoint);
     } else {
       setDraft({});
     }
   }, [selectedPoint]);
+
+  const getPointData = async (_key) => {
+    const data = await db('POINTS').where({_key}).one();
+    setDraft({
+      title: data.title,
+      like: data.like,
+      dislike: data.dislike,
+      lng: data.lng,
+      lat: data.lat,
+    });
+  }
 
   const updateField = (e) => {
     e.preventDefault();
@@ -22,21 +34,49 @@ export default function PointForm() {
     })
   }
 
-  const saveHandler = () => {
-    savePoint(draft, selectedPoint);
+  const savePoint = async () => {
+    if (selectedPoint != null) {
+      await db('POINTS', true).where({_key: selectedPoint }).set({
+        ...draft,
+        lat: mapCenter[1],
+        lng: mapCenter[0],
+      }).one();
+    } else {
+      await db('POINTS', true).insert({
+        ...draft,
+        lat: mapCenter[1],
+        lng: mapCenter[0],
+      }).one();
+    }
+    
+    mounted();
+    clearForm();
+  }
+
+  const deletePoint = async () => {
+    await db('POINTS', true).delete().where({_key: selectedPoint}).one();
+    mounted();
+    clearForm();
+  }
+
+  const clearForm = () => {
+    setPoint();
+    setSelectedPoint();
+    setEditingPoint(false);
     setDraft({});
   }
 
+  // console.log('draft', draft)
   const title = draft.title || '';
   const like = draft.like || '';
-  const hate = draft.hate || '';
+  const dislike = draft.dislike || '';
 
   if (selectedPoint != null && !editingPoint) {
     return (
       <div className="pointForm">
       <div>🏚 {title}</div>
       <div>👍 {like}</div>
-      <div>👎 {hate}</div>
+      <div>👎 {dislike}</div>
       <button className="edit" onClick={() => setEditingPoint(true)}>Edit</button>
     </div>
     )
@@ -57,14 +97,15 @@ export default function PointForm() {
         </div>
       </div>
       <div className="formRow">
-        <label htmlFor="hate">👎 </label>
+        <label htmlFor="dislike">👎 </label>
         <div className="formRowInput">
-          <input name="hate" type="text" value={hate} onChange={updateField} />
+          <input name="dislike" type="text" value={dislike} onChange={updateField} />
         </div>
       </div>
       <div className="buttons">
+        {selectedPoint != null && <button className="delete" onClick={deletePoint}>Delete</button>}
         {selectedPoint != null && <button className="cancel" onClick={() => setEditingPoint(false)}>Cancel</button>}
-        <button className="submit" onClick={saveHandler}>Save</button>
+        <button className="submit" onClick={savePoint}>Save</button>
       </div>
     </div>
   )

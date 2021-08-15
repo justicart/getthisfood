@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import useLocalStorage from '../hooks/useLocalStorage';
+import React, {useEffect, useState} from 'react';
+import {useEasybase} from 'easybase-react';
 
 const ZOOM_DEFAULT = [16];
 
@@ -10,9 +10,10 @@ export const AppContext = React.createContext({
   mapZoom: ZOOM_DEFAULT, setMapZoom: () => {},
   point: null, setPoint: () => {},
   points: [],
-  savePoint: () => {},
   selectedPoint: null, setSelectedPoint: () => {},
   editingPoint: null, setEditingPoint: () => {},
+  pointData: [],
+  mounted: () => {},
 })
 
 export const AppProvider = (props) => {
@@ -21,29 +22,20 @@ export const AppProvider = (props) => {
   const [mapMoved, setMapMoved] = useState();
   const [mapZoom, setMapZoom] = useState(ZOOM_DEFAULT);
   const [point, setPoint] = useState();
-  const [points, setPoints] = useLocalStorage('points', []);
   const [selectedPoint, setSelectedPoint] = useState();
   const [editingPoint, setEditingPoint] = useState(false);
-  const savePoint = (data, id) => {
-    if (id != null) {
-      const newPoints = [...points];
-      newPoints[id] = data;
-      setPoints(newPoints);
-    } else {
-      const newPoint = {
-        coords: mapCenter,
-        ...data
-      }
-      setPoints([
-        ...points,
-        newPoint
-      ]);
-    }
-    
-    setPoint();
-    setSelectedPoint();
-    setEditingPoint(false);
+  const [easybaseData, setEasybaseData] = useState([]);
+  const { db } = useEasybase();
+
+  const mounted = async() => {
+    const ebData = await db("POINTS", true).return().limit(10).all();
+    console.log('ebData', ebData)
+    setEasybaseData(ebData);
   }
+
+  useEffect(() => {
+    mounted();
+  }, [])
   
   return (
     <AppContext.Provider value={{
@@ -52,10 +44,10 @@ export const AppProvider = (props) => {
       mapMoved, setMapMoved,
       mapZoom, setMapZoom,
       point, setPoint,
-      points,
-      savePoint,
       selectedPoint, setSelectedPoint,
-      editingPoint, setEditingPoint
+      editingPoint, setEditingPoint,
+      pointData: easybaseData,
+      mounted,
     }}>
       {props.children}
     </AppContext.Provider>

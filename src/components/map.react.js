@@ -1,5 +1,5 @@
 import ReactMap, { Layer, Feature } from 'react-mapbox-gl';
-import {useContext, useState} from 'react';
+import {useContext} from 'react';
 import {AppContext} from '../contexts/AppContext';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -8,10 +8,9 @@ const Mapbox = ReactMap({
 });
 
 export default function Map({height}) {
-  const {location, mapCenter, setMapCenter, mapZoom, setMapZoom, point, points, selectedPoint, setSelectedPoint, editingPoint} = useContext(AppContext);
-  if (location == null) return null;
-  // console.log('points', points)
+  const {location, mapCenter, setMapCenter, mapZoom, setMapZoom, point, selectedPoint, setSelectedPoint, editingPoint, pointData} = useContext(AppContext);
 
+  if (location == null) return null;
   const handleMapMoved = (e) => {
     const newCenter = e.transform && e.transform._center;
     if (newCenter) {
@@ -25,24 +24,26 @@ export default function Map({height}) {
     }
   }
 
-  const openPointDetails = (data) => {
+  const openPointDetails = (_key) => {
     if (point || editingPoint) {
       return;
     }
-    // console.log(data.feature.properties.id, point, selectedPoint);
-    setSelectedPoint(data.feature.properties.id)
+    setSelectedPoint(_key)
   }
 
   const closePointDetails = () => {
     setSelectedPoint();
   }
 
-  // const fit = locator != null ? [reversedCenter, reversedMarkerCoord] : [reversedCenter, reversedCenter];
   const pad = 45;
   const topPad = height + pad;
 
   const mapMoved = mapCenter && location !== mapCenter;
   const center = mapMoved ? mapCenter : location;
+
+  const selectedPointMarker = pointData.find(pnt => {
+    return pnt._key === selectedPoint;
+  });
 
   return (
     <Mapbox
@@ -70,8 +71,13 @@ export default function Map({height}) {
         id="points"
         paint={{"circle-radius": 10, "circle-opacity": 0.5, "circle-color": "#00a2ff"}}
       >
-        {points.map((savedPoint, index) => {
-          return <Feature key={index} coordinates={savedPoint.coords} onClick={openPointDetails} id={index} />
+        {pointData.map((savedPoint, index) => {
+          if (savedPoint.lng != null && savedPoint.lat !== null) {
+            const coords = [savedPoint.lng, savedPoint.lat];
+            return <Feature key={index} coordinates={coords} onClick={() => openPointDetails(savedPoint._key)} />
+          } else {
+            return <></>
+          }
         })}
       </Layer>
       <Layer
@@ -79,7 +85,8 @@ export default function Map({height}) {
         id="selectedPoint"
         paint={{"circle-radius": 15, "circle-opacity": 0, "circle-stroke-color": "#00a2ff", "circle-stroke-width": 2}}
       >
-        {selectedPoint != null && <Feature coordinates={points[selectedPoint].coords} onClick={closePointDetails} id="selected" />}
+        {selectedPointMarker != null && 
+        <Feature coordinates={[selectedPointMarker.lng, selectedPointMarker.lat]} onClick={closePointDetails} id="selected" />}
       </Layer>
     </Mapbox>
   )
