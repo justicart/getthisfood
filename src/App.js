@@ -1,6 +1,6 @@
 import {useContext, useEffect, useState} from 'react';
 import {AppContext, AppProvider} from './contexts/AppContext';
-import {Auth, EasybaseProvider} from 'easybase-react';
+import {Auth, EasybaseProvider, useEasybase} from 'easybase-react';
 import ebconfig from './ebconfig';
 
 import './App.css';
@@ -14,6 +14,7 @@ import PointForm from './components/point-form.react';
 import useRect from './hooks/useRect';
 
 function Content() {
+  const {signOut} = useEasybase();
   const {location, setLocation, mapCenter, setMapCenter, point, setPoint, selectedPoint, setSelectedPoint, setEditingPoint} = useContext(AppContext);
   const [loadingLoc, setLoadingLoc] = useState(false);
   const [isBeta, setIsBeta] = useState(false);
@@ -96,6 +97,9 @@ function Content() {
               <FontAwesomeIcon icon={faLocationArrow} />
             </div>
           </div>
+          <div className="button beta" onClick={signOut}>
+            s
+          </div>
           <div className={`button beta ${isBeta ? 'selected' : ''}`} onClick={() => setIsBeta(!isBeta)}>
             v2
           </div>
@@ -114,7 +118,11 @@ function App() {
   return (
     <AppProvider>
       <EasybaseProvider ebconfig={ebconfig}>
-        <Auth>
+        <Auth
+          signUpFields={{
+            name: true,
+          }}
+        >
           <Content />
         </Auth>
       </EasybaseProvider>
