@@ -6,10 +6,12 @@ import {SIZE} from '../constants';
 function SelectedPin(props) {
   const {points, selectedPoint, closePointDetails} = props;
 
-  const point = points[selectedPoint];
+  const point = points.find(pnt => {
+    return pnt._key === selectedPoint;
+  });
 
   return (
-    <Marker longitude={point.coords[0]} latitude={point.coords[1]}>
+    <Marker longitude={point.lng} latitude={point.lat}>
       <svg
         height={SIZE}
         viewBox={`0 0 ${SIZE} ${SIZE}`}

@@ -17,7 +17,7 @@ function Content() {
   const {signOut} = useEasybase();
   const {location, setLocation, mapCenter, setMapCenter, point, setPoint, selectedPoint, setSelectedPoint, setEditingPoint} = useContext(AppContext);
   const [loadingLoc, setLoadingLoc] = useState(false);
-  const [isBeta, setIsBeta] = useState(false);
+  const [isBeta, setIsBeta] = useState(true);
   const [box, heightRef] = useRect();
   useEffect(() => {
     getLocation();

@@ -11,11 +11,11 @@ import SelectedPin from './selectedPin.react.js';
 const TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 
 export default function Map() {
-  const {location, mapCenter, setMapCenter, mapZoom, setMapZoom, point, points, selectedPoint, setSelectedPoint, editingPoint} = useContext(AppContext);
+  const {location, mapCenter, setMapCenter, mapZoom, setMapZoom, point, pointData, selectedPoint, setSelectedPoint, editingPoint} = useContext(AppContext);
   const [viewport, setViewport] = useState({
     latitude: location[1],
     longitude: location[0],
-    zoom: 14
+    zoom: mapZoom[0]
   });
   const dbViewport = useDebounce(viewport, 300);
   useEffect(() => {
@@ -23,11 +23,11 @@ export default function Map() {
     setMapZoom(dbViewport.zoom);
   }, [dbViewport]);
 
-  const openPointDetails = (index) => {
+  const openPointDetails = (_key) => {
     if (point || editingPoint) {
       return;
     }
-    setSelectedPoint(index)
+    setSelectedPoint(_key)
   }
   
   const closePointDetails = () => {
@@ -43,8 +43,8 @@ export default function Map() {
       height="100%"
       onViewportChange={(viewport) => setViewport(viewport)}
     >
-      <Pins points={points} openPointDetails={openPointDetails} />
-      {selectedPoint != null && <SelectedPin points={points} selectedPoint={selectedPoint} closePointDetails={closePointDetails} />}
+      <Pins points={pointData} openPointDetails={openPointDetails} />
+      {selectedPoint != null && <SelectedPin points={pointData} selectedPoint={selectedPoint} closePointDetails={closePointDetails} />}
     </ReactMapGL>
   );
 }

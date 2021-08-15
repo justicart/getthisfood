@@ -7,15 +7,9 @@ import {SIZE} from '../constants';
 
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 function Pins(props) {
-  const { Frame, sync, configureFrame } = useEasybase();
-
-  useEffect(() => {
-    configureFrame({ tableName: "NOTES APP", limit: 10 });
-    sync();
-  }, []);
   const {points, openPointDetails} = props;
 
-  return Frame().map((point, index) => {
+  return points.map((point, index) => {
     return (
       <Marker key={`marker-${index}`} longitude={point.lng} latitude={point.lat}>
         <svg
@@ -27,7 +21,7 @@ function Pins(props) {
             stroke: 'none',
             transform: `translate(${-SIZE / 2}px,${-SIZE / 2}px)`
           }}
-          onClick={() => openPointDetails(index)}
+          onClick={() => openPointDetails(point._key)}
         >
           <circle cx={SIZE / 2} cy={SIZE / 2} r={10}/>
         </svg>

@@ -41,6 +41,10 @@ export default function Map({height}) {
   const mapMoved = mapCenter && location !== mapCenter;
   const center = mapMoved ? mapCenter : location;
 
+  const selectedPointMarker = pointData.find(pnt => {
+    return pnt._key === selectedPoint;
+  });
+
   return (
     <Mapbox
       // eslint-disable-next-line
@@ -81,7 +85,8 @@ export default function Map({height}) {
         id="selectedPoint"
         paint={{"circle-radius": 15, "circle-opacity": 0, "circle-stroke-color": "#00a2ff", "circle-stroke-width": 2}}
       >
-        {/* {selectedPoint != null && <Feature coordinates={points[selectedPoint].coords} onClick={closePointDetails} id="selected" />} */}
+        {selectedPointMarker != null && 
+        <Feature coordinates={[selectedPointMarker.lng, selectedPointMarker.lat]} onClick={closePointDetails} id="selected" />}
       </Layer>
     </Mapbox>
   )
